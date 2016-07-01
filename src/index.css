@@ -1,0 +1,151 @@
+body {
+	background-color: #3498DB;
+}
+
+h1,h2,h3,h4 {
+	color: white;
+}
+
+.items-block {
+	color: white;
+	border: 4px solid #f3f3f3;
+	border-radius: 10px;
+	padding: 10px;
+}
+
+
+/* Materialize-CSS override */
+
+.btn.btn--my {
+	background-color: #ee6e73;
+}
+
+.btn.btn-my:hover {
+	background-color: #bf3137;
+}
+
+.input-field--my label {
+	color: #f7f3e8;
+}
+
+.input-field--my.active label {
+	color: #ff8147;
+}
+
+.collection .collection-item--my {
+	background-color: rgba(255,255,255,0.2);
+	margin-bottom: 5px;
+	border: 2px solid #e0e0e0;
+}
+
+.collection--my {
+	border: 0;
+}
+
+/* TODO(ref): selected menu item */
+nav ul a.active {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+/* TODO(ref): filter-list */
+.filter-list {
+	margin-top: 10px;
+	width: 100%;
+	min-height: 54px;
+}
+
+	.filter-list__filter {
+		width: 100%;
+		margin-bottom: 5px;
+		background-color: #ee6e73;
+		color: white;
+	}
+
+	.filter-list__filter:hover {
+		background-color: #bf3137;
+		cursor: pointer;
+	}
+
+    .filter-list__filter.selected {
+		background-color: #bf3137;
+		cursor: pointer;
+	}
+
+/* TODO(ref): filter-form */
+.filter-form {
+	margin-top: 10px;
+}
+
+	.form-controls button:not(:last-child) {
+		margin-right: 5px;
+	}
+
+/* TODO(ref): tweets-list */
+.image-list {
+	margin-top: 10px;
+}
+
+	.image-list__image {
+		display: -ms-flexbox;
+		display: -webkit-flex;
+		display: flex;
+		-webkit-flex-direction: row;
+		-ms-flex-direction: row;
+		flex-direction: row;
+		-webkit-flex-wrap: nowrap;
+		-ms-flex-wrap: nowrap;
+		flex-wrap: nowrap;
+		-webkit-justify-content: flex-start;
+		-ms-flex-pack: start;
+		justify-content: flex-start;
+		-webkit-align-content: stretch;
+		-ms-flex-line-pack: stretch;
+		align-content: stretch;
+	}
+
+		.image__inner-column {
+			-webkit-order: 0;
+			-ms-flex-order: 0;
+			order: 0;
+			-webkit-flex: 0 1 auto;
+			-ms-flex: 0 1 auto;
+			flex: 0 1 auto;
+			-webkit-align-self: auto;
+			-ms-flex-item-align: auto;
+			align-self: auto;
+		}
+
+		.image-description {
+			padding-left: 15px;
+		}
+
+		.circle-border {
+			border-radius: 75px;
+			border: 4px solid #d0d0d0;
+		}
+
+.applied-filter-list {
+	margin-top: 10px;
+	line-height: 31px;
+	width: 100%;
+}
+
+	.applied-filter-list__filter {
+		background-color: #ee6e73;
+		color: white;
+		display: inline-block;
+		margin-right: 10px;
+	}
+
+	.applied-filter-list__filter:hover {
+		background-color: #bf3137;
+		cursor: pointer;
+	}
+
+.filter-form {
+	margin-top: 10px;
+}
+
+	.form-controls button:not(:last-child) {
+		margin-right: 5px;
+	}

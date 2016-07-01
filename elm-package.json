@@ -1,0 +1,23 @@
+{
+    "version": "1.0.0",
+    "summary": "Example using `elm-webpack-loader`.",
+    "repository": "https://github.com/moarwick/elm-webpack-starter.git",
+    "license": "MIT",
+    "source-directories": [
+        "src"
+    ],
+    "exposed-modules": [],
+    "dependencies": {
+        "elm-community/json-extra": "1.0.0 <= v < 2.0.0",
+        "elm-community/maybe-extra": "1.1.0 <= v < 2.0.0",
+        "elm-lang/core": "4.0.0 <= v < 5.0.0",
+        "elm-lang/html": "1.0.0 <= v < 2.0.0",
+        "elm-lang/navigation": "1.0.0 <= v < 2.0.0",
+        "evancz/elm-http": "3.0.1 <= v < 4.0.0",
+        "evancz/url-parser": "1.0.0 <= v < 2.0.0",
+        "jinjor/elm-time-travel": "1.0.11 <= v < 2.0.0",
+        "krisajenkins/elm-exts": "25.6.2 <= v < 26.0.0",
+        "rgrempel/elm-route-url": "2.0.1 <= v < 3.0.0"
+    },
+    "elm-version": "0.17.0 <= v < 0.18.0"
+}
