@@ -49,7 +49,7 @@ update msg model =
                         | filtersPage = updatedFiltersPage
                         , filters = model.filters
                     }
-                        |> processPageFiltersOutMsg outMsg
+                        |> processFiltersPageOutMsg outMsg
             in
                 ( updatedModel, Cmd.map PageFilters cmds )
 
@@ -62,14 +62,19 @@ update msg model =
                 ( updatedModel, Cmd.none )
 
 
-processPageFiltersOutMsg : OutMsg -> Model -> Model
-processPageFiltersOutMsg outMsg model =
-    case outMsg of
-        Filters.ChangeRoute route ->
-            (update (SetRoute route) model)
-                |> fst
+updateActivePageModel : Model -> Model
+updateActivePageModel model =
+    case model.route of
+        TweetsRoute ->
+            { model | tweetsPage = Tweets.new model.filters }
 
-        _ ->
+        FiltersRoute ->
+            { model | filtersPage = Filters.new model.filters }
+
+        FilterRoute id ->
+            updateFiltersPage model id
+
+        NotFoundRoute ->
             model
 
 
@@ -98,17 +103,12 @@ updateFiltersPage model id =
         { model | filtersPage = updatedFiltersPage }
 
 
-updateActivePageModel : Model -> Model
-updateActivePageModel model =
-    case model.route of
-        TweetsRoute ->
-            { model | tweetsPage = Tweets.new model.filters }
+processFiltersPageOutMsg : OutMsg -> Model -> Model
+processFiltersPageOutMsg outMsg model =
+    case outMsg of
+        Filters.ChangeRoute route ->
+            (update (SetRoute route) model)
+                |> fst
 
-        FiltersRoute ->
-            { model | filtersPage = Filters.new model.filters }
-
-        FilterRoute id ->
-            updateFiltersPage model id
-
-        NotFoundRoute ->
+        _ ->
             model
