@@ -68,16 +68,11 @@ updateActivePageModel model =
         TweetsRoute ->
             { model | tweetsPage = Tweets.new model.filters }
 
-        FiltersRoute ->
-            { model | filtersPage = Filters.new model.filters }
-
         FilterRoute id ->
             let
                 selectedFilter =
                     List.filter (\f -> id == f.id) model.filters
                         |> List.head
-
-                -- _ = Debug.log "selectedFilter" selectedFilter
 
                 resetedFiltersPage =
                     Filters.new model.filters

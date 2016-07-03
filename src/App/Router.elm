@@ -6,7 +6,6 @@ import App.Update exposing (..)
 import Navigation exposing (Location)
 import RouteUrl exposing (HistoryEntry(..), UrlChange)
 import UrlParser exposing (Parser, (</>), format, int, oneOf, s, string)
-import Pages.Filters.Update exposing (delta2fragment)
 
 
 routeMatchers : Parser (Route -> a) a
@@ -15,7 +14,6 @@ routeMatchers =
         [ format TweetsRoute (s "")
         , format TweetsRoute (s "tweets")
         , format FilterRoute (s "filters" </> int)
-        , format FiltersRoute (s "filters")
         , format NotFoundRoute (s "404")
         ]
 
@@ -30,21 +28,8 @@ delta2url previous current =
         TweetsRoute ->
             Just <| UrlChange NewEntry "/tweets"
 
-        FiltersRoute ->
-            Just <| UrlChange NewEntry "/filters"
-
-        FilterRoute _ ->
-            let
-                id =
-                    delta2fragment previous.filtersPage current.filtersPage
-
-                strId =
-                    if id > 0 then
-                        ("/" ++ toString id)
-                    else
-                        ""
-            in
-                Just <| UrlChange NewEntry ("/filters" ++ strId)
+        FilterRoute id ->
+            Just <| UrlChange NewEntry ("/filters/" ++ toString id)
 
         NotFoundRoute ->
             Just <| UrlChange NewEntry "/404"

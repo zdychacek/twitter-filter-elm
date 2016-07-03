@@ -17,6 +17,8 @@ view model =
         [ viewHeader model
         , viewMenu model
         , viewMainContent model
+        , pre []
+            [ text (toString model) ]
         ]
 
 
@@ -45,8 +47,9 @@ viewMenu model =
                             ]
                         , li []
                             [ a
-                                [ classByPage FiltersRoute model.route
-                                , onClick <| SetRoute FiltersRoute
+                                -- TODO
+                                [ classByPage (FilterRoute 0) model.route
+                                , onClick <| SetRoute (FilterRoute 0)
                                 ]
                                 [ text "Filters" ]
                             ]
@@ -66,9 +69,6 @@ viewMainContent model =
     case model.route of
         TweetsRoute ->
             Html.map PageTweets (Tweets.view model.tweetsPage)
-
-        FiltersRoute ->
-            Html.map PageFilters (Filters.view model.filtersPage)
 
         FilterRoute _ ->
             Html.map PageFilters (Filters.view model.filtersPage)

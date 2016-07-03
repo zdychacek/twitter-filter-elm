@@ -1,4 +1,4 @@
-port module Pages.Filters.Update exposing (init, delta2fragment, update, Msg(..), OutMsg(..))
+port module Pages.Filters.Update exposing (init, update, Msg(..), OutMsg(..))
 
 import String
 import Pages.Filters.Model exposing (..)
@@ -48,7 +48,7 @@ update msg model =
                         , tags = []
                     }
             in
-                ( updatedModel, Cmd.none, NoOp )
+                ( updatedModel, Cmd.none, ChangeRoute (FilterRoute 0) )
 
         SelectFilter filter ->
             let
@@ -101,7 +101,7 @@ update msg model =
                         , tags = []
                     }
             in
-                withsaveFilters ( updatedModel, requestFilters (), ChangeRoute FiltersRoute )
+                withsaveFilters ( updatedModel, requestFilters (), ChangeRoute (FilterRoute 0) )
 
 
 saveFilter : Filter -> Model -> Model
@@ -136,13 +136,3 @@ saveFilter filterToSave model =
 withsaveFilters : ( Model, Cmd Msg, OutMsg ) -> ( Model, Cmd Msg, OutMsg )
 withsaveFilters ( model, cmds, outMsg ) =
     ( model, Cmd.batch [ saveFilters model.filters, cmds ], outMsg )
-
-
-delta2fragment : Model -> Model -> Int
-delta2fragment previous current =
-    case current.selectedFilter of
-        Just filter ->
-            filter.id
-
-        Nothing ->
-            0

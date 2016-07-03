@@ -8,7 +8,6 @@ import Filter.Model exposing (Filter)
 type Route
     = TweetsRoute
     | FilterRoute Int
-    | FiltersRoute
     | NotFoundRoute
 
 
