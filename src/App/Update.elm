@@ -72,35 +72,32 @@ updateActivePageModel model =
             { model | filtersPage = Filters.new model.filters }
 
         FilterRoute id ->
-            updateFiltersPage model id
+            let
+                selectedFilter =
+                    List.filter (\f -> id == f.id) model.filters
+                        |> List.head
+
+                -- _ = Debug.log "selectedFilter" selectedFilter
+
+                resetedFiltersPage =
+                    Filters.new model.filters
+
+                updatedFiltersPage =
+                    case selectedFilter of
+                        Just filter ->
+                            let
+                                ( updatedModel, _, _ ) =
+                                    Filters.update (SelectFilter filter) resetedFiltersPage
+                            in
+                                updatedModel
+
+                        Nothing ->
+                            resetedFiltersPage
+            in
+                { model | filtersPage = updatedFiltersPage }
 
         NotFoundRoute ->
             model
-
-
-updateFiltersPage : Model -> Int -> Model
-updateFiltersPage model id =
-    let
-        selectedFilter =
-            List.filter (\f -> id == f.id) model.filters
-                |> List.head
-
-        resetedFiltersPage =
-            Filters.new model.filters
-
-        updatedFiltersPage =
-            case selectedFilter of
-                Just filter ->
-                    let
-                        ( updatedModel, _, _ ) =
-                            Filters.update (SelectFilter filter) resetedFiltersPage
-                    in
-                        updatedModel
-
-                Nothing ->
-                    resetedFiltersPage
-    in
-        { model | filtersPage = updatedFiltersPage }
 
 
 processFiltersPageOutMsg : OutMsg -> Model -> Model
