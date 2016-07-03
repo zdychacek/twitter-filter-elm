@@ -8,6 +8,7 @@ import Pages.Tweets.Model exposing (..)
 import Tweet.Model exposing (Tweet)
 import Tweet.Decoder exposing (decodeTweets)
 import Filter.Model exposing (Filter)
+import Common.Messages exposing (OutMsg(..), Route(..))
 
 
 type Msg
@@ -15,6 +16,7 @@ type Msg
     | RemoveFilter Filter
     | FetchSucceed (List Tweet)
     | FetchFail Http.Error
+    | Init (List Int) (List Filter)
 
 
 init : List Filter -> ( Model, Cmd Msg )
@@ -22,14 +24,48 @@ init savedFilters =
     ( new savedFilters, Cmd.none )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg, OutMsg )
 update msg model =
     case msg of
+        Init filterIds savedFilters ->
+            let
+                selectedFilters =
+                    List.filter (\f -> List.member f.id filterIds) savedFilters
+
+                filters =
+                    List.filter (\f -> not (List.member f.id filterIds)) savedFilters
+
+                resetedTweetsPage =
+                    new savedFilters
+
+                updatedTweets =
+                    if List.length selectedFilters > 0 then
+                        Loading
+                    else
+                        Success []
+
+                updatedTweetsPage =
+                    { resetedTweetsPage
+                        | selectedFilters = selectedFilters
+                        , filters = filters
+                        , tweets = updatedTweets
+                    }
+
+                cmd =
+                    if List.length selectedFilters > 0 then
+                        selectedFilters
+                            |> joinFilters
+                            |> fetchCommand
+                    else
+                        Cmd.none
+            in
+                ( updatedTweetsPage, cmd, NoOp )
+
         FetchSucceed tweets ->
-            ( { model | tweets = Success tweets }, Cmd.none )
+            ( { model | tweets = Success tweets }, Cmd.none, NoOp )
 
         FetchFail _ ->
-            ( model, Cmd.none )
+            ( model, Cmd.none, NoOp )
 
         AddFilter filter ->
             let
@@ -52,7 +88,7 @@ update msg model =
                         |> joinFilters
                         |> fetchCommand
             in
-                ( updatedModel, cmd )
+                ( updatedModel, cmd, ChangeRoute (TweetsRoute (List.map .id updatedSelectedFilters)) )
 
         RemoveFilter filter ->
             let
@@ -84,7 +120,7 @@ update msg model =
                     else
                         Cmd.none
             in
-                ( updatedModel, cmd )
+                ( updatedModel, cmd, ChangeRoute (TweetsRoute (List.map .id updatedSelectedFilters)) )
 
 
 fetchCommand : String -> Cmd Msg

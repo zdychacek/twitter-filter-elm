@@ -1,14 +1,9 @@
-module App.Model exposing (Route(..), Model, new)
+module App.Model exposing (Model, new)
 
 import Pages.Filters.Model as Filters exposing (new, Model)
 import Pages.Tweets.Model as Tweets exposing (new, Model)
 import Filter.Model exposing (Filter)
-
-
-type Route
-    = TweetsRoute
-    | FilterRoute Int
-    | NotFoundRoute
+import Common.Messages exposing (Route(..))
 
 
 type alias Model =
@@ -23,7 +18,7 @@ new : List Filter -> Model
 new savedFilters =
     -- Active route
     { route =
-        TweetsRoute
+        TweetsRoute []
     -- Filters page model
     , filtersPage =
         Filters.new savedFilters

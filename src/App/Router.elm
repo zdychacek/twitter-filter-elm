@@ -1,32 +1,31 @@
 module App.Router exposing (delta2url, url2messages)
 
 import String
+import Dict
+import Array
 import App.Model exposing (..)
 import App.Update exposing (..)
 import Navigation exposing (Location)
 import RouteUrl exposing (HistoryEntry(..), UrlChange)
-import UrlParser exposing (Parser, (</>), format, int, oneOf, s, string)
-
-
-routeMatchers : Parser (Route -> a) a
-routeMatchers =
-    oneOf
-        [ format TweetsRoute (s "")
-        , format TweetsRoute (s "tweets")
-        , format FilterRoute (s "filters" </> int)
-        , format NotFoundRoute (s "404")
-        ]
-
-
-
--- Changes in model -> URL --
+import Erl
+import Common.Messages exposing (Route(..))
 
 
 delta2url : Model -> Model -> Maybe UrlChange
 delta2url previous current =
     case current.route of
-        TweetsRoute ->
-            Just <| UrlChange NewEntry "/tweets"
+        TweetsRoute filterIds ->
+            let
+                filters =
+                    if List.length filterIds > 0 then
+                        filterIds
+                            |> List.map toString
+                            |> String.join ","
+                            |> (++) "?filters="
+                    else
+                        ""
+            in
+                Just <| UrlChange NewEntry ("/tweets" ++ filters)
 
         FilterRoute id ->
             Just <| UrlChange NewEntry ("/filters/" ++ toString id)
@@ -43,11 +42,49 @@ url2messages : Location -> List Msg
 url2messages location =
     let
         result =
-            UrlParser.parse identity routeMatchers (String.dropLeft 1 location.pathname)
+            route location.href
+                |> Debug.log "Router"
     in
         case result of
-            Ok route ->
+            Just route ->
                 [ SetRoute route ]
 
-            Err _ ->
+            Nothing ->
                 [ SetRoute NotFoundRoute ]
+
+
+route : String -> Maybe Route
+route url =
+    let
+        location =
+            Erl.parse url
+
+        pagePath =
+            location.path
+                |> List.head
+                |> Maybe.withDefault "tweets"
+    in
+        if pagePath == "tweets" then
+            String.split ","
+                (Dict.get "filters" location.query
+                    |> Maybe.withDefault ""
+                )
+                |> List.map (String.toInt >> Result.withDefault 0)
+                |> List.filter ((<) 0)
+                |> List.sort
+                |> TweetsRoute
+                |> Just
+
+        else if pagePath == "filters" then
+            (location.path
+                |> Array.fromList
+                |> Array.get 1
+                |> Maybe.withDefault ""
+            )
+                |> String.toInt
+                |> Result.withDefault 0
+                |> FilterRoute
+                |> Just
+
+        else
+            Nothing

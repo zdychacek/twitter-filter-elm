@@ -1,10 +1,10 @@
-port module Pages.Filters.Update exposing (init, update, Msg(..), OutMsg(..))
+port module Pages.Filters.Update exposing (init, update, Msg(..))
 
 import String
 import Pages.Filters.Model exposing (..)
 import Filter.Model exposing (Filter)
 import Ports exposing (focus, saveFilters, requestFilters)
-import App.Model exposing (Route(..))
+import Common.Messages exposing (OutMsg(..), Route(..))
 
 
 type Msg
@@ -14,21 +14,40 @@ type Msg
     | EraseForm
     | SaveFilter
     | DeleteFilter
-
-
-type OutMsg
-    = NoOp
-    | ChangeRoute Route
+    | Init Int (List Filter)
 
 
 init : List Filter -> ( Model, Cmd Msg )
 init savedFilters =
     ( new savedFilters, Cmd.none )
 
-
 update : Msg -> Model -> ( Model, Cmd Msg, OutMsg )
 update msg model =
     case msg of
+        Init id savedFilters ->
+            let
+                selectedFilter =
+                    List.filter (\f -> id == f.id) savedFilters
+                        |> List.head
+
+                resetedFiltersPage =
+                    new savedFilters
+
+                updatedFiltersPage =
+                    case selectedFilter of
+                        Just filter ->
+                            let
+                                ( updatedModel, cmds, _ ) =
+                                    update (SelectFilter filter) resetedFiltersPage
+                            in
+                                updatedModel
+
+                        Nothing ->
+                            resetedFiltersPage
+            in
+                ( updatedFiltersPage, Cmd.none, NoOp )
+
+
         SetName name ->
             ( { model | name = name }, Cmd.none, NoOp )
 

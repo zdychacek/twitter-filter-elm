@@ -1,12 +1,11 @@
 module App.Update exposing (init, update, Msg(..))
 
-import App.Model as App exposing (Model, Route(..), new)
-import Pages.Tweets.Update as Tweets
-import Pages.Filters.Update as Filters exposing (Msg(..), OutMsg(..))
-import Pages.Filters.Model as Filters exposing (new)
-import Pages.Tweets.Model as Tweets exposing (new)
+import App.Model as App exposing (Model, new)
+import Pages.Filters.Update as Filters exposing (Msg(..))
+import Pages.Tweets.Update as Tweets exposing (Msg(..))
 import Filter.Model exposing (Filter)
 import Ports exposing (requestFilters)
+import Common.Messages exposing (OutMsg(..), Route(..))
 
 
 type Msg
@@ -29,14 +28,23 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SetRoute route ->
-            ( updateActivePageModel ({ model | route = route }), requestFilters () )
+            let
+                ( model, cmds ) =
+                    initActivePage ({ model | route = route })
+            in
+                ( model, Cmd.batch [ cmds, requestFilters () ] )
 
         PageTweets msg ->
             let
-                ( updatedTweetsPage, cmds ) =
+                -- `Tweets.update` returns out message
+                ( updatedTweetsPage, cmds, outMsg ) =
                     Tweets.update msg model.tweetsPage
+
+                updatedModel =
+                    { model | tweetsPage = updatedTweetsPage }
+                        |> processPageOutMsg outMsg
             in
-                ( { model | tweetsPage = updatedTweetsPage }, Cmd.map PageTweets cmds )
+                ( updatedModel, Cmd.map PageTweets cmds )
 
         PageFilters msg ->
             let
@@ -49,56 +57,44 @@ update msg model =
                         | filtersPage = updatedFiltersPage
                         , filters = model.filters
                     }
-                        |> processFiltersPageOutMsg outMsg
+                        |> processPageOutMsg outMsg
             in
                 ( updatedModel, Cmd.map PageFilters cmds )
 
         FiltersLoaded filters ->
             let
-                updatedModel =
+                ( updatedModel, cmds ) =
                     ({ model | filters = filters })
-                        |> updateActivePageModel
+                        |> initActivePage
             in
                 ( updatedModel, Cmd.none )
 
 
-updateActivePageModel : Model -> Model
-updateActivePageModel model =
+initActivePage : Model -> ( Model, Cmd Msg )
+initActivePage model =
     case model.route of
-        TweetsRoute ->
-            { model | tweetsPage = Tweets.new model.filters }
+        TweetsRoute filterIds ->
+            let
+                ( updatedModel, cmds, _ ) =
+                    Tweets.update (Tweets.Init filterIds model.filters) model.tweetsPage
+            in
+                ( { model | tweetsPage = updatedModel }, Cmd.map PageTweets cmds )
 
         FilterRoute id ->
             let
-                selectedFilter =
-                    List.filter (\f -> id == f.id) model.filters
-                        |> List.head
-
-                resetedFiltersPage =
-                    Filters.new model.filters
-
-                updatedFiltersPage =
-                    case selectedFilter of
-                        Just filter ->
-                            let
-                                ( updatedModel, _, _ ) =
-                                    Filters.update (SelectFilter filter) resetedFiltersPage
-                            in
-                                updatedModel
-
-                        Nothing ->
-                            resetedFiltersPage
+                ( updatedModel, cmds, _ ) =
+                    Filters.update (Filters.Init id model.filters) model.filtersPage
             in
-                { model | filtersPage = updatedFiltersPage }
+                ( { model | filtersPage = updatedModel }, Cmd.map PageFilters cmds )
 
         NotFoundRoute ->
-            model
+            ( model, Cmd.none )
 
 
-processFiltersPageOutMsg : OutMsg -> Model -> Model
-processFiltersPageOutMsg outMsg model =
+processPageOutMsg : OutMsg -> Model -> Model
+processPageOutMsg outMsg model =
     case outMsg of
-        Filters.ChangeRoute route ->
+        ChangeRoute route ->
             (update (SetRoute route) model)
                 |> fst
 

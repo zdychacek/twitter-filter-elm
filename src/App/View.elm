@@ -9,6 +9,7 @@ import App.Update exposing (..)
 import Pages.PageNotFound.View as PageNotFound exposing (..)
 import Pages.Tweets.View as Tweets exposing (..)
 import Pages.Filters.View as Filters exposing (..)
+import Common.Messages exposing (Route(..))
 
 
 view : Model -> Html Msg
@@ -40,8 +41,8 @@ viewMenu model =
                     [ ul []
                         [ li []
                             [ a
-                                [ classByPage TweetsRoute model.route
-                                , onClick <| SetRoute TweetsRoute
+                                [ classByPage (TweetsRoute []) model.route
+                                , onClick <| SetRoute (TweetsRoute [])
                                 ]
                                 [ text "Tweets" ]
                             ]
@@ -67,7 +68,7 @@ viewMenu model =
 viewMainContent : Model -> Html Msg
 viewMainContent model =
     case model.route of
-        TweetsRoute ->
+        TweetsRoute _ ->
             Html.map PageTweets (Tweets.view model.tweetsPage)
 
         FilterRoute _ ->
