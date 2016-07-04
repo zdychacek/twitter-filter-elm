@@ -1,9 +1,8 @@
-module App.Model exposing (Model, new)
+module App.Model exposing (Model, new, Route(..))
 
+import Filter.Model exposing (Filter)
 import Pages.Filters.Model as Filters exposing (new, Model)
 import Pages.Tweets.Model as Tweets exposing (new, Model)
-import Filter.Model exposing (Filter)
-import Common.Messages exposing (Route(..))
 
 
 type alias Model =
@@ -12,6 +11,12 @@ type alias Model =
     , tweetsPage : Tweets.Model
     , filters : List Filter
     }
+
+
+type Route
+    = TweetsRoute (List Int)
+    | FilterRoute Int
+    | NotFoundRoute
 
 
 new : List Filter -> Model

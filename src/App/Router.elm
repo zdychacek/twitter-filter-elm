@@ -3,12 +3,11 @@ module App.Router exposing (delta2url, url2messages)
 import String
 import Dict
 import Array
-import App.Model exposing (..)
-import App.Update exposing (..)
+import Erl
 import Navigation exposing (Location)
 import RouteUrl exposing (HistoryEntry(..), UrlChange)
-import Erl
-import Common.Messages exposing (Route(..))
+import App.Model exposing (Model, Route(..))
+import App.Update exposing (Msg(..))
 
 
 delta2url : Model -> Model -> Maybe UrlChange
@@ -71,7 +70,6 @@ route url =
                 )
                 |> List.map (String.toInt >> Result.withDefault 0)
                 |> List.filter ((<) 0)
-                |> List.sort
                 |> TweetsRoute
                 |> Just
 

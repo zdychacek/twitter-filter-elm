@@ -4,11 +4,12 @@ import Http
 import String
 import Task exposing (Task)
 import Exts.RemoteData exposing (RemoteData(..), WebData)
-import Pages.Tweets.Model exposing (..)
-import Tweet.Model exposing (Tweet)
+import App.Model exposing (Route(..))
 import Tweet.Decoder exposing (decodeTweets)
+import Tweet.Model exposing (Tweet)
 import Filter.Model exposing (Filter)
-import Common.Messages exposing (OutMsg(..), Route(..))
+import Pages.Tweets.Model exposing (Model, new)
+import Common.Messages exposing (OutMsg(..))
 
 
 type Msg

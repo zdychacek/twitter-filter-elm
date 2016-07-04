@@ -4,12 +4,11 @@ import Html exposing (..)
 import Html.Attributes exposing (class, classList)
 import Html.App as Html
 import Html.Events exposing (onClick)
-import App.Model exposing (..)
+import App.Model exposing (Model, Route(..))
 import App.Update exposing (..)
 import Pages.PageNotFound.View as PageNotFound exposing (..)
 import Pages.Tweets.View as Tweets exposing (..)
 import Pages.Filters.View as Filters exposing (..)
-import Common.Messages exposing (Route(..))
 
 
 view : Model -> Html Msg

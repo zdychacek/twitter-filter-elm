@@ -1,11 +1,11 @@
 module App.Update exposing (init, update, Msg(..))
 
-import App.Model as App exposing (Model, new)
-import Pages.Filters.Update as Filters exposing (Msg(..))
-import Pages.Tweets.Update as Tweets exposing (Msg(..))
+import App.Model as App exposing (Model, Route(..), new)
 import Filter.Model exposing (Filter)
 import Ports exposing (requestFilters)
-import Common.Messages exposing (OutMsg(..), Route(..))
+import Pages.Tweets.Update as Tweets exposing (Msg(..))
+import Pages.Filters.Update as Filters exposing (Msg(..))
+import Common.Messages exposing (OutMsg(..))
 
 
 type Msg
