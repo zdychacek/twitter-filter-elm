@@ -43,7 +43,6 @@ url2messages location =
     let
         result =
             route location.href
-                |> Debug.log "Router"
     in
         case result of
             Just route ->
