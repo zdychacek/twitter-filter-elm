@@ -18,8 +18,6 @@ view model =
         [ viewHeader model
         , map Menu (Menu.view model.menu)
         , viewMainContent model
-        , pre []
-            [ text (toString model) ]
         ]
 
 
