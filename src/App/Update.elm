@@ -1,11 +1,12 @@
 module App.Update exposing (init, update, Msg(..))
 
-import App.Model as App exposing (Model, Route(..), new)
+import App.Model as App exposing (Model, new)
 import Filter.Model exposing (Filter)
 import Ports exposing (requestFilters)
 import Pages.Tweets.Update as Tweets exposing (Msg(..))
 import Pages.Filters.Update as Filters exposing (Msg(..))
-import Common.Messages exposing (OutMsg(..))
+import Components.Menu.Update as Menu exposing (Msg(..))
+import Common exposing (OutMsg(..), Route(..))
 
 
 type Msg
@@ -13,6 +14,7 @@ type Msg
     | PageTweets Tweets.Msg
     | PageFilters Filters.Msg
     | FiltersLoaded (List Filter)
+    | Menu Menu.Msg
 
 
 init : Maybe (List Filter) -> ( Model, Cmd Msg )
@@ -29,8 +31,12 @@ update msg model =
     case msg of
         SetRoute route ->
             let
+                -- update menu component
+                ( updatedMenu, _, _ ) =
+                    Menu.update (Menu.SetRoute route) model.menu
+
                 ( model, cmds ) =
-                    initActivePage ({ model | route = route })
+                    onRouteChange ({ model | route = route, menu = updatedMenu })
             in
                 ( model, Cmd.batch [ cmds, requestFilters () ] )
 
@@ -42,7 +48,7 @@ update msg model =
 
                 updatedModel =
                     { model | tweetsPage = updatedTweetsPage }
-                        |> processPageOutMsg outMsg
+                        |> processOutMsg outMsg
             in
                 ( updatedModel, Cmd.map PageTweets cmds )
 
@@ -57,7 +63,7 @@ update msg model =
                         | filtersPage = updatedFiltersPage
                         , filters = model.filters
                     }
-                        |> processPageOutMsg outMsg
+                        |> processOutMsg outMsg
             in
                 ( updatedModel, Cmd.map PageFilters cmds )
 
@@ -65,13 +71,28 @@ update msg model =
             let
                 ( updatedModel, cmds ) =
                     ({ model | filters = filters })
-                        |> initActivePage
+                        |> onRouteChange
+            in
+                ( updatedModel, Cmd.none )
+
+        Menu msg ->
+            let
+                ( updatedMenu, cmds, outMsg ) =
+                    Menu.update msg model.menu
+
+                updatedModel =
+                    { model | menu = updatedMenu }
+                        |> processOutMsg outMsg
             in
                 ( updatedModel, Cmd.none )
 
 
-initActivePage : Model -> ( Model, Cmd Msg )
-initActivePage model =
+
+-- Called when route has changed
+
+
+onRouteChange : Model -> ( Model, Cmd Msg )
+onRouteChange model =
     case model.route of
         TweetsRoute filterIds ->
             let
@@ -91,8 +112,8 @@ initActivePage model =
             ( model, Cmd.none )
 
 
-processPageOutMsg : OutMsg -> Model -> Model
-processPageOutMsg outMsg model =
+processOutMsg : OutMsg -> Model -> Model
+processOutMsg outMsg model =
     case outMsg of
         ChangeRoute route ->
             (update (SetRoute route) model)

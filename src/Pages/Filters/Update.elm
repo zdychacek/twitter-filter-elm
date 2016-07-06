@@ -1,11 +1,10 @@
 port module Pages.Filters.Update exposing (init, update, Msg(..))
 
 import String
-import App.Model exposing (Route(..))
 import Pages.Filters.Model exposing (Model, new)
 import Filter.Model exposing (Filter)
 import Ports exposing (focus, saveFilters, requestFilters)
-import Common.Messages exposing (OutMsg(..))
+import Common exposing (Route(..), OutMsg(..))
 
 
 type Msg

@@ -2,20 +2,21 @@ module App.View exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (class, classList)
-import Html.App as Html
+import Html.App exposing (map)
 import Html.Events exposing (onClick)
-import App.Model exposing (Model, Route(..))
+import App.Model exposing (Model)
 import App.Update exposing (..)
 import Pages.PageNotFound.View as PageNotFound exposing (..)
 import Pages.Tweets.View as Tweets exposing (..)
 import Pages.Filters.View as Filters exposing (..)
-
+import Components.Menu.View as Menu
+import Common exposing (Route(..))
 
 view : Model -> Html Msg
 view model =
     div [ class "container" ]
         [ viewHeader model
-        , viewMenu model
+        , map Menu (Menu.view model.menu)
         , viewMainContent model
         , pre []
             [ text (toString model) ]
@@ -31,57 +32,15 @@ viewHeader model =
         ]
 
 
-viewMenu : Model -> Html Msg
-viewMenu model =
-    div [ class "row" ]
-        [ div [ class "col s12" ]
-            [ nav []
-                [ div [ class "nav-wrapper" ]
-                    [ ul []
-                        [ li []
-                            [ a
-                                [ classByPage (TweetsRoute []) model.route
-                                , onClick <| SetRoute (TweetsRoute [])
-                                ]
-                                [ text "Tweets" ]
-                            ]
-                        , li []
-                            [ a
-                                -- TODO
-                                [ classByPage (FilterRoute 0) model.route
-                                , onClick <| SetRoute (FilterRoute 0)
-                                ]
-                                [ text "Filters" ]
-                            ]
-                        ]
-                    ]
-                ]
-            ]
-        ]
-
-
-
 -- Render current page.
-
-
 viewMainContent : Model -> Html Msg
 viewMainContent model =
     case model.route of
         TweetsRoute _ ->
-            Html.map PageTweets (Tweets.view model.tweetsPage)
+            map PageTweets (Tweets.view model.tweetsPage)
 
         FilterRoute _ ->
-            Html.map PageFilters (Filters.view model.filtersPage)
+            map PageFilters (Filters.view model.filtersPage)
 
         NotFoundRoute ->
             PageNotFound.view
-
-
-{-| Get menu items classes. This function gets the active page and checks if
-it is indeed the page used.
--}
-classByPage : Route -> Route -> Attribute a
-classByPage route currentRoute =
-    classList
-        [ ( "active", route == currentRoute )
-        ]

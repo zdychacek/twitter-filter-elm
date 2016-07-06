@@ -6,8 +6,9 @@ import Array
 import Erl
 import Navigation exposing (Location)
 import RouteUrl exposing (HistoryEntry(..), UrlChange)
-import App.Model exposing (Model, Route(..))
+import App.Model exposing (Model)
 import App.Update exposing (Msg(..))
+import Common exposing (Route(..))
 
 
 delta2url : Model -> Model -> Maybe UrlChange
