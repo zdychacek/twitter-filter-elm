@@ -14,7 +14,7 @@ type Msg
     | EraseForm
     | SaveFilter
     | DeleteFilter
-    | Init Int (List Filter)
+    | RestoreState Int (List Filter)
 
 
 init : List Filter -> ( Model, Cmd Msg )
@@ -24,7 +24,7 @@ init savedFilters =
 update : Msg -> Model -> ( Model, Cmd Msg, OutMsg )
 update msg model =
     case msg of
-        Init id savedFilters ->
+        RestoreState id savedFilters ->
             let
                 selectedFilter =
                     List.filter (\f -> id == f.id) savedFilters

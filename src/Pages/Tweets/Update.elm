@@ -16,7 +16,7 @@ type Msg
     | RemoveFilter Filter
     | FetchSucceed (List Tweet)
     | FetchFail Http.Error
-    | Init (List Int) (List Filter)
+    | RestoreState (List Int) (List Filter)
 
 
 init : List Filter -> ( Model, Cmd Msg )
@@ -27,7 +27,7 @@ init savedFilters =
 update : Msg -> Model -> ( Model, Cmd Msg, OutMsg )
 update msg model =
     case msg of
-        Init filterIds savedFilters ->
+        RestoreState filterIds savedFilters ->
             let
                 selectedFilters =
                     List.filter (\f -> List.member f.id filterIds) savedFilters
@@ -38,17 +38,14 @@ update msg model =
                 resetedTweetsPage =
                     new savedFilters
 
-                updatedTweets =
-                    if List.length selectedFilters > 0 then
-                        Loading
-                    else
-                        Success []
+                hasSelectedFilters =
+                    List.length selectedFilters > 0
 
                 updatedTweetsPage =
                     { resetedTweetsPage
                         | selectedFilters = selectedFilters
                         , filters = filters
-                        , tweets = updatedTweets
+                        , tweets = if hasSelectedFilters then Loading else Success []
                     }
 
                 cmd =
@@ -69,58 +66,37 @@ update msg model =
 
         AddFilter filter ->
             let
-                updatedSelectedFilters =
-                    model.selectedFilters ++ [ filter ]
-
-                updatedFilters =
-                    model.filters
-                        |> List.filter (\currFilter -> currFilter.id /= filter.id)
-
                 updatedModel =
-                    { model
-                        | tweets = Loading
-                        , selectedFilters = updatedSelectedFilters
-                        , filters = updatedFilters
-                    }
+                    { model | tweets = Loading }
+                        |> addFilter filter
 
                 cmd =
                     updatedModel.selectedFilters
                         |> joinFilters
                         |> fetchCommand
             in
-                ( updatedModel, cmd, ChangeRoute (TweetsRoute (List.map .id updatedSelectedFilters)) )
+                ( updatedModel, cmd, ChangeRoute (TweetsRoute (List.map .id updatedModel.selectedFilters)) )
 
         RemoveFilter filter ->
             let
-                updatedSelectedFilters =
-                    model.selectedFilters
-                        |> List.filter (\currFilter -> currFilter.id /= filter.id)
-
-                updatedFilters =
-                    model.filters ++ [ filter ]
-
-                updatedTweets =
-                    if List.length updatedSelectedFilters > 0 then
-                        Loading
-                    else
-                        Success []
-
                 updatedModel =
-                    { model
-                        | tweets = updatedTweets
-                        , selectedFilters = updatedSelectedFilters
-                        , filters = updatedFilters
-                    }
+                    removeFilter filter model
+
+                hasSelectedFilters =
+                    List.length updatedModel.selectedFilters > 0
 
                 cmd =
-                    if List.length updatedModel.selectedFilters > 0 then
+                    if hasSelectedFilters then
                         updatedModel.selectedFilters
                             |> joinFilters
                             |> fetchCommand
                     else
                         Cmd.none
             in
-                ( updatedModel, cmd, ChangeRoute (TweetsRoute (List.map .id updatedSelectedFilters)) )
+                ( { updatedModel | tweets = if hasSelectedFilters then Loading else Success [] }
+                , cmd
+                , ChangeRoute (TweetsRoute (List.map .id updatedModel.selectedFilters))
+                )
 
 
 fetchCommand : String -> Cmd Msg
@@ -135,10 +111,43 @@ fetchCommand query =
 
 
 -- join filters' labels
-
-
 joinFilters : List Filter -> String
 joinFilters filters =
     filters
         |> List.map (\currFilter -> String.join " OR " currFilter.tags)
         |> String.join " "
+
+
+addFilter : Filter -> Model -> Model
+addFilter filter model =
+    let
+        updatedSelectedFilters =
+            model.selectedFilters ++ [ filter ]
+
+        updatedFilters =
+            model.filters
+                |> List.filter (\currFilter -> currFilter.id /= filter.id)
+
+        updatedModel =
+            { model
+                | selectedFilters = updatedSelectedFilters
+                , filters = updatedFilters
+            }
+    in
+        updatedModel
+
+
+removeFilter : Filter -> Model -> Model
+removeFilter filter model =
+    let
+        updatedSelectedFilters =
+            model.selectedFilters
+                |> List.filter (\currFilter -> currFilter.id /= filter.id)
+
+        updatedModel =
+            { model
+                | selectedFilters = updatedSelectedFilters
+                , filters = model.filters ++ [ filter ]
+            }
+    in
+        updatedModel

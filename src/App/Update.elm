@@ -97,14 +97,14 @@ onRouteChange model =
         TweetsRoute filterIds ->
             let
                 ( updatedModel, cmds, _ ) =
-                    Tweets.update (Tweets.Init filterIds model.filters) model.tweetsPage
+                    Tweets.update (Tweets.RestoreState filterIds model.filters) model.tweetsPage
             in
                 ( { model | tweetsPage = updatedModel }, Cmd.map PageTweets cmds )
 
         FilterRoute id ->
             let
                 ( updatedModel, cmds, _ ) =
-                    Filters.update (Filters.Init id model.filters) model.filtersPage
+                    Filters.update (Filters.RestoreState id model.filters) model.filtersPage
             in
                 ( { model | filtersPage = updatedModel }, Cmd.map PageFilters cmds )
 
